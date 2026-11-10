@@ -14,7 +14,7 @@ main{padding:34px 0 48px}.chips{display:grid;grid-template-columns:repeat(3,1fr)
 .section-head{display:flex;justify-content:space-between;gap:18px;align-items:end;margin:42px 0 16px}.section-head h2{margin:0;font-size:clamp(1.7rem,4vw,2.35rem)}.section-head p{margin:0;color:var(--muted);max-width:560px}
 .gallery-shell{background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 10px 30px rgba(20,32,51,.06)}.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.photo-grid a{display:block}.photo-grid img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:14px;border:1px solid var(--line);display:block;background:#edf0f4}.photo-caption{margin:7px 2px 0;color:var(--muted);font-size:.92rem}
 .customer-cta{margin-top:34px;background:linear-gradient(135deg,#132c49,#1f6feb);color:#fff;border-radius:24px;padding:30px;display:grid;grid-template-columns:1.4fr .6fr;gap:24px;align-items:center;box-shadow:var(--shadow)}.customer-cta h2{font-size:clamp(1.7rem,4vw,2.4rem);margin:0 0 8px}.customer-cta p{margin:0;color:#eaf2ff}.customer-cta .btn{justify-self:end;min-width:210px}
-.contact-row{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:28px}.contact-row a{text-decoration:none;color:var(--blue);font-weight:800}.fine{font-size:.88rem;color:var(--muted)}
+.contact-row{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:28px}.contact-row a{text-decoration:none;font-weight:800}.contact-row a:not(.btn){color:var(--blue)}.fine{font-size:.88rem;color:var(--muted)}
 footer{padding:28px 0 40px;color:var(--muted);text-align:center}
 @media(max-width:760px){.hero{padding-top:54px}.chips,.grid,.photo-grid,.contact-row{grid-template-columns:1fr}.chips{margin-top:-34px}.customer-cta{grid-template-columns:1fr}.customer-cta .btn{justify-self:stretch}.section-head{display:block}.section-head p{margin-top:8px}}
 </style>
@@ -27,7 +27,6 @@ footer{padding:28px 0 40px;color:var(--muted);text-align:center}
     <p>Small interior jobs, single rooms, wall prep, caulking, walls and trim — with direct contact from Joseph Teague.</p>
     <div class="actions">
       <a class="btn btn-light" href="tel:3527133996">Call 352-713-3996</a>
-      <a class="btn btn-ghost" href="/upload.html">Send project photos</a>
       <a class="btn btn-ghost" href="#work">See project photos</a>
     </div>
   </div>
@@ -43,7 +42,7 @@ footer{padding:28px 0 40px;color:var(--muted);text-align:center}
 
   <section class="grid">
     <article class="card"><h2>Services</h2><ul class="clean"><li>Prep walls before painting</li><li>Caulk cracks and gaps</li><li>Paint walls</li><li>Paint trim neatly</li></ul></article>
-    <article class="card"><h2>Simple process</h2><p class="muted">Send photos of the room, explain what you need, and Joe can review the project before discussing availability and a quote.</p><a class="btn btn-blue" href="/upload.html">Send photos</a></article>
+    <article class="card"><h2>Simple process</h2><p class="muted">Send photos of the room, explain what you need, and Joe can review the project before discussing availability and a quote.</p></article>
     <article class="card"><h2>Direct contact</h2><p><strong>Phone</strong><br><a href="tel:3527133996">352-713-3996</a></p><p><strong>Email</strong><br><a href="mailto:teaj35224@gmail.com">teaj35224@gmail.com</a></p></article>
   </section>
 
@@ -59,7 +58,7 @@ footer{padding:28px 0 40px;color:var(--muted);text-align:center}
 
   <section class="contact-row">
     <article class="card"><h2>About Joe's Painting</h2><p class="muted">Straightforward interior residential painting built around smaller projects instead of large full-house jobs.</p><p><strong>Owner:</strong> Joseph Teague</p></article>
-    <article class="card"><h2>Ready to talk?</h2><p class="muted">Call, email, or send project photos so Joe can see what you're working with.</p><div class="actions"><a class="btn btn-blue" href="tel:3527133996">Call Joe</a><a class="btn btn-orange" href="/upload.html">Send photos</a></div></article>
+    <article class="card"><h2>Ready to talk?</h2><p class="muted">Call, email, or send project photos so Joe can see what you're working with.</p><div class="actions"><a class="btn btn-blue" href="tel:3527133996">Call Joe</a></div></article>
   </section>
 </div>
 </main>
