@@ -1,2 +1,62 @@
-const crypto=require('node:crypto');const {owner,cookie,secureCookie,seal,gh}=require('./_shared.cjs');
-exports.handler=async(event)=>{const q=event.queryStringParameters||{};const state=cookie(event,'jp_oauth_state');const clear=secureCookie('jp_oauth_state','',0);const fail=msg=>({statusCode:302,headers:{Location:'/owner.html?error='+encodeURIComponent(msg),'Set-Cookie':clear,'Cache-Control':'no-store'},body:''});if(!q.code||!q.state||!state||q.state.length!==state.length||!crypto.timingSafeEqual(Buffer.from(q.state),Buffer.from(state)))return fail('Invalid login session');try{const r=await fetch('https://github.com/login/oauth/access_token',{method:'POST',headers:{Accept:'application/json','Content-Type':'application/json'},body:JSON.stringify({client_id:process.env.GITHUB_CLIENT_ID,client_secret:process.env.GITHUB_CLIENT_SECRET,code:q.code,redirect_uri:process.env.SITE_URL.replace(/\/$/,'')+'/.netlify/functions/auth-callback'})});const t=await r.json();if(!r.ok||!t.access_token)return fail('GitHub authorization failed');const u=await gh('/user',t.access_token);const user=await u.json();if(!u.ok||user.login.toLowerCase()!==owner.toLowerCase())return fail('This GitHub account is not authorized');const value=seal({login:user.login,id:user.id,exp:Date.now()+3600000});return {statusCode:302,headers:{Location:'/owner.html','Cache-Control':'no-store','Set-Cookie':[secureCookie('jp_session',value,3600),clear]},body:''}}catch{return fail('Login failed')}};
+const crypto=require('node:crypto');
+const {owner,cookie,secureCookie,seal,gh}=require('./_shared.cjs');
+
+exports.handler=async(event)=>{
+  const q=event.queryStringParameters||{};
+  const state=cookie(event,'jp_oauth_state');
+  const clear=secureCookie('jp_oauth_state','',0);
+  const fail=msg=>({
+    statusCode:302,
+    headers:{
+      Location:'/owner.html?error='+encodeURIComponent(msg),
+      'Cache-Control':'no-store',
+      'Set-Cookie':clear
+    },
+    body:''
+  });
+
+  if(!q.code||!q.state||!state||q.state.length!==state.length||!crypto.timingSafeEqual(Buffer.from(q.state),Buffer.from(state))){
+    return fail('Invalid login session');
+  }
+
+  try{
+    const r=await fetch('https://github.com/login/oauth/access_token',{
+      method:'POST',
+      headers:{Accept:'application/json','Content-Type':'application/json'},
+      body:JSON.stringify({
+        client_id:process.env.GITHUB_CLIENT_ID,
+        client_secret:process.env.GITHUB_CLIENT_SECRET,
+        code:q.code,
+        redirect_uri:process.env.SITE_URL.replace(/\/$/,'')+'/.netlify/functions/auth-callback'
+      })
+    });
+
+    const t=await r.json();
+    if(!r.ok||!t.access_token)return fail('GitHub authorization failed');
+
+    const u=await gh('/user',t.access_token);
+    const user=await u.json();
+    if(!u.ok||user.login.toLowerCase()!==owner.toLowerCase()){
+      return fail('This GitHub account is not authorized');
+    }
+
+    const value=seal({login:user.login,id:user.id,exp:Date.now()+3600000});
+
+    return {
+      statusCode:302,
+      headers:{
+        Location:'/owner.html',
+        'Cache-Control':'no-store'
+      },
+      multiValueHeaders:{
+        'Set-Cookie':[
+          secureCookie('jp_session',value,3600),
+          clear
+        ]
+      },
+      body:''
+    };
+  }catch{
+    return fail('Login failed');
+  }
+};
