@@ -20,23 +20,35 @@ exports.handler=async(event)=>{
   }
 
   try{
+    const redirectUri=process.env.SITE_URL.replace(/\/$/,'')+'/.netlify/functions/auth-callback';
+    const params=new URLSearchParams({
+      client_id:process.env.GITHUB_CLIENT_ID,
+      client_secret:process.env.GITHUB_CLIENT_SECRET,
+      code:q.code,
+      redirect_uri:redirectUri
+    });
+
     const r=await fetch('https://github.com/login/oauth/access_token',{
       method:'POST',
-      headers:{Accept:'application/json','Content-Type':'application/json'},
-      body:JSON.stringify({
-        client_id:process.env.GITHUB_CLIENT_ID,
-        client_secret:process.env.GITHUB_CLIENT_SECRET,
-        code:q.code,
-        redirect_uri:process.env.SITE_URL.replace(/\/$/,'')+'/.netlify/functions/auth-callback'
-      })
+      headers:{
+        Accept:'application/json',
+        'Content-Type':'application/x-www-form-urlencoded'
+      },
+      body:params.toString()
     });
 
     const t=await r.json();
-    if(!r.ok||!t.access_token)return fail('GitHub authorization failed');
+    if(!r.ok||!t.access_token){
+      const reason=t.error_description||t.error||('HTTP '+r.status);
+      return fail('GitHub authorization failed: '+reason);
+    }
 
     const u=await gh('/user',t.access_token);
     const user=await u.json();
-    if(!u.ok||user.login.toLowerCase()!==owner.toLowerCase()){
+    if(!u.ok){
+      return fail('GitHub user verification failed');
+    }
+    if(!user.login||user.login.toLowerCase()!==owner.toLowerCase()){
       return fail('This GitHub account is not authorized');
     }
 
@@ -56,7 +68,8 @@ exports.handler=async(event)=>{
       },
       body:''
     };
-  }catch{
+  }catch(e){
+    console.error('Owner OAuth callback failed',e&&e.message?e.message:e);
     return fail('Login failed');
   }
 };
