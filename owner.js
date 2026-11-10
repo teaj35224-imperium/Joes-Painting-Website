@@ -1,7 +1,7 @@
 const endpoint='/.netlify/functions/gallery-admin';
 const status=document.getElementById('status'),photos=document.getElementById('photos'),upload=document.getElementById('upload'),file=document.getElementById('file');
 function msg(t){status.textContent=t}
-function signedIn(ok){upload.disabled=!ok;file.disabled=!ok}
+let authenticated=false;function signedIn(ok){authenticated=ok;upload.disabled=false;file.disabled=false;upload.textContent=ok?'Upload photo':'Sign in to upload'}
 signedIn(false);
 async function api(method='GET',body,action){
  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),20000);
@@ -30,6 +30,7 @@ async function load(){
  }catch(e){signedIn(false);photos.replaceChildren();msg(e.message)}
 }
 upload.onclick=async()=>{
+ if(!authenticated)return msg('Sign in with GitHub above before uploading. The file picker is available so you can choose your photo first.');
  const f=file.files[0];if(!f)return msg('Choose a photo');
  if(f.size>4*1024*1024)return msg('Maximum file size is 4 MB');
  upload.disabled=true;
@@ -39,7 +40,7 @@ upload.onclick=async()=>{
   msg('Uploading to GitHub…');
   await api('POST',{action:'upload',name:f.name,content:base64});
   await load();msg('Photo uploaded successfully');file.value='';
- }catch(e){msg(e.message)}finally{if(!file.disabled)upload.disabled=false}
+ }catch(e){msg(e.message)}finally{upload.disabled=false}
 };
 document.getElementById('logout').onclick=async()=>{try{await api('POST',null,'logout');photos.replaceChildren();signedIn(false);msg('Signed out')}catch(e){msg(e.message)}};
 load();
