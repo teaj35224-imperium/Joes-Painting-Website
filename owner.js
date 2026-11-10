@@ -1,4 +1,5 @@
 const endpoint='/.netlify/functions/gallery-admin';
+const oauthError=new URLSearchParams(window.location.search).get('error');
 const status=document.getElementById('status'),photos=document.getElementById('photos'),upload=document.getElementById('upload'),file=document.getElementById('file');
 function msg(t){status.textContent=t}
 let authenticated=false;function signedIn(ok){authenticated=ok;upload.disabled=false;file.disabled=false;upload.textContent=ok?'Upload photo':'Sign in to upload'}
@@ -27,7 +28,7 @@ async function load(){
    row.append(img,name,del);photos.append(row)
   }
   msg('Signed in and connected');
- }catch(e){signedIn(false);photos.replaceChildren();msg(e.message)}
+ }catch(e){signedIn(false);photos.replaceChildren();msg(oauthError?'GitHub sign-in failed: '+oauthError:e.message)}
 }
 upload.onclick=async()=>{
  if(!authenticated)return msg('Sign in with GitHub above before uploading. The file picker is available so you can choose your photo first.');
