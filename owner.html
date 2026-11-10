@@ -1,1 +1,45 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Joe's Painting | Owner Gallery</title><style>body{font:16px system-ui;margin:0;background:#10243a;color:#fff}main{max-width:760px;margin:auto;padding:28px}a{color:#8fd4ff}button,.button{display:inline-block;border:0;border-radius:9px;background:#f68b35;color:#11253b;padding:12px 18px;font-weight:700;cursor:pointer}section{background:#203b55;padding:20px;border-radius:16px;margin:20px 0}.photo{display:flex;align-items:center;gap:12px;margin:14px 0}.photo img{width:110px;height:85px;object-fit:cover;border-radius:8px}small{color:#c8d5df}</style></head><body><main><a href="/">← Back to Joe's Painting</a><h1>Owner Photo Manager</h1><p>Only the authorized GitHub account can manage project photos.</p><section><a class="button" href="/.netlify/functions/auth-start">Sign in with GitHub</a> <button id="logout" type="button">Sign out</button><p id="status" role="status"></p></section><section><h2>Add a project photo</h2><input type="file" id="file" accept="image/jpeg,image/png,image/webp"><button id="upload" type="button">Upload photo</button><p><small>JPG, PNG or WebP, maximum 4 MB</small></p></section><section><h2>Manage photos</h2><div id="photos"></div></section></main><script src="/owner.js" defer></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Owner Dashboard | Joe's Painting</title>
+<style>
+:root{--bg:#0f2135;--panel:#1d3852;--panel2:#244561;--text:#fff;--muted:#c6d4df;--orange:#f28a35;--blue:#64b5f6;--line:#ffffff20}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#0c1c2d,#132b44);color:var(--text);font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{width:min(860px,calc(100% - 30px));margin:auto;padding:28px 0 50px}.back{color:#a8d8ff;text-decoration:none;font-weight:800}.head{margin:24px 0}.head h1{font-size:clamp(2rem,7vw,3.2rem);line-height:1;margin:0 0 10px}.head p{margin:0;color:var(--muted)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px}.card h2{margin:0 0 8px}.card p{color:var(--muted)}button,.button{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:11px;background:var(--orange);color:#11253b;padding:12px 17px;font-weight:850;text-decoration:none;cursor:pointer}.button.blue{background:var(--blue);color:#0f2135}.button.ghost{background:#ffffff12;color:#fff;border:1px solid var(--line)}.row{display:flex;gap:10px;flex-wrap:wrap}.photo{display:flex;align-items:center;gap:12px;margin:14px 0;padding:10px;background:#ffffff0a;border-radius:12px}.photo img{width:110px;height:85px;object-fit:cover;border-radius:8px}.photo span{word-break:break-word}.status{margin-top:12px;font-weight:750;color:#e5f2ff}.manager{margin-top:18px}.manager input[type=file]{display:block;width:100%;margin:12px 0;color:#fff}.small{font-size:.88rem;color:var(--muted)}
+@media(max-width:720px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="/">← Back to Joe's Painting</a>
+<header class="head"><h1>Owner Dashboard</h1><p>Manage your public project gallery and review customer photo submissions.</p></header>
+
+<section class="grid">
+  <article class="card">
+    <h2>Public Project Gallery</h2>
+    <p>Add or delete finished-job photos that customers can see on the public website.</p>
+    <div class="row"><a class="button" href="/.netlify/functions/auth-start">Sign in with GitHub</a><button id="logout" type="button">Sign out</button></div>
+    <p id="status" class="status" role="status"></p>
+    <div class="manager">
+      <input type="file" id="file" accept="image/jpeg,image/png,image/webp">
+      <button id="upload" type="button">Upload photo</button>
+      <p class="small">JPG, PNG or WebP, maximum 4 MB per gallery photo.</p>
+      <div id="photos"></div>
+    </div>
+  </article>
+
+  <article class="card">
+    <h2>Customer Photo Inbox</h2>
+    <p>Customer quote requests and uploaded project photos are kept private in your Netlify Forms submissions. They are never added to the public gallery automatically.</p>
+    <div class="row">
+      <a class="button blue" href="https://app.netlify.com/projects/joes-painting/forms" target="_blank" rel="noopener">Open customer submissions</a>
+      <a class="button ghost" href="/upload.html">View customer upload page</a>
+    </div>
+    <p class="small">No extra API keys are required for this inbox. Netlify handles the form submissions for the site.</p>
+  </article>
+</section>
+</main>
+<script src="/owner.js" defer></script>
+</body>
+</html>
