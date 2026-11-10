@@ -6,41 +6,52 @@
 <title>Owner Dashboard | Joe's Painting</title>
 <style>
 :root{--bg:#0f2135;--panel:#1d3852;--text:#fff;--muted:#c6d4df;--orange:#f28a35;--blue:#64b5f6;--line:#ffffff20}
-*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#0c1c2d,#132b44);color:var(--text);font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{width:min(860px,calc(100% - 30px));margin:auto;padding:28px 0 50px}.back{color:#a8d8ff;text-decoration:none;font-weight:800}.head{margin:24px 0}.head h1{font-size:clamp(2rem,7vw,3.2rem);line-height:1;margin:0 0 10px}.head p{margin:0;color:var(--muted)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px}.card h2{margin:0 0 8px}.card p{color:var(--muted)}.button{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:11px;background:var(--orange);color:#11253b;padding:12px 17px;font-weight:850;text-decoration:none;cursor:pointer}.button.blue{background:var(--blue);color:#0f2135}.button.ghost{background:#ffffff12;color:#fff;border:1px solid var(--line)}.row{display:flex;gap:10px;flex-wrap:wrap}.small{font-size:.88rem;color:var(--muted)}.steps{padding-left:20px;color:var(--muted)}.steps li{margin:7px 0}
-@media(max-width:720px){.grid{grid-template-columns:1fr}}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#0c1c2d,#132b44);color:var(--text);font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{width:min(900px,calc(100% - 30px));margin:auto;padding:28px 0 50px}.back{color:#a8d8ff;text-decoration:none;font-weight:800}.head{margin:24px 0}.head h1{font-size:clamp(2rem,7vw,3.2rem);line-height:1;margin:0 0 10px}.head p{margin:0;color:var(--muted)}.grid{display:grid;grid-template-columns:1.25fr .75fr;gap:18px}.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px}.card h2{margin:0 0 8px}.card p{color:var(--muted)}button,.button{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:11px;background:var(--orange);color:#11253b;padding:12px 17px;font-weight:850;text-decoration:none;cursor:pointer;font:inherit}.button.blue{background:var(--blue);color:#0f2135}.button.ghost,button.ghost{background:#ffffff12;color:#fff;border:1px solid var(--line)}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.small{font-size:.88rem;color:var(--muted)}.login{display:grid;grid-template-columns:1fr auto;gap:10px;margin:14px 0}.login input{width:100%;min-height:48px;padding:0 14px;border-radius:11px;border:1px solid #ffffff30;background:#0d2134;color:#fff;font:inherit}.manager{margin-top:18px;padding-top:18px;border-top:1px solid var(--line)}.manager input[type=file]{display:block;width:100%;margin:12px 0;color:#fff}.photo{display:grid;grid-template-columns:92px 1fr auto;align-items:center;gap:12px;margin:12px 0;padding:10px;background:#ffffff0a;border-radius:12px}.photo img{width:92px;height:74px;object-fit:cover;border-radius:8px}.photo span{word-break:break-word;font-size:.9rem}.photo button{padding:9px 12px}.status{min-height:24px;font-weight:750;color:#e5f2ff}.hidden{display:none!important}
+@media(max-width:720px){.grid{grid-template-columns:1fr}.login{grid-template-columns:1fr}.photo{grid-template-columns:76px 1fr}.photo img{width:76px;height:66px}.photo button{grid-column:2;justify-self:start}}
 </style>
 </head>
 <body>
 <main>
 <a class="back" href="/">← Back to Joe's Painting</a>
-<header class="head"><h1>Owner Dashboard</h1><p>Manage your public project gallery and review customer photo submissions.</p></header>
+<header class="head"><h1>Owner Dashboard</h1><p>Upload and delete your public project photos directly from this page.</p></header>
 
 <section class="grid">
   <article class="card">
     <h2>Public Project Gallery</h2>
-    <p>Add finished-job photos for customers to see, or remove old ones. This uses your existing GitHub login directly — no extra website keys or OAuth setup.</p>
-    <div class="row">
-      <a class="button" href="https://github.com/teaj35224-imperium/Joes-painting-gallery/upload/main/photos" target="_blank" rel="noopener">Add project photos</a>
-      <a class="button ghost" href="https://github.com/teaj35224-imperium/Joes-painting-gallery/tree/main/photos" target="_blank" rel="noopener">Manage / delete photos</a>
+    <div id="login-box">
+      <p>Enter your private owner passcode to manage the gallery.</p>
+      <div class="login">
+        <input id="owner-passcode" type="password" autocomplete="current-password" placeholder="Owner passcode">
+        <button id="owner-login" type="button">Unlock gallery</button>
+      </div>
     </div>
-    <ol class="steps">
-      <li>Tap <strong>Add project photos</strong>.</li>
-      <li>Choose the finished-job pictures from your iPhone.</li>
-      <li>Commit the upload in GitHub.</li>
-      <li>The public gallery reads those photos automatically.</li>
-    </ol>
+
+    <div id="manager" class="manager hidden">
+      <div class="row">
+        <strong>Gallery unlocked</strong>
+        <button id="logout" class="ghost" type="button">Lock</button>
+      </div>
+      <label for="file"><strong>Choose finished-job photos</strong></label>
+      <input type="file" id="file" accept="image/jpeg,image/png,image/webp" multiple>
+      <button id="upload" type="button">Upload selected photos</button>
+      <p class="small">JPG, PNG or WebP. Maximum 4 MB per photo.</p>
+      <p id="status" class="status" role="status"></p>
+      <div id="photos"></div>
+    </div>
+
+    <p id="login-status" class="status" role="status"></p>
   </article>
 
   <article class="card">
     <h2>Customer Photo Inbox</h2>
-    <p>Customers can send room photos and project details from the website. Those submissions stay private in your Netlify Forms area and do not appear in the public gallery.</p>
+    <p>Customer quote requests stay private in Netlify Forms and never appear in your public gallery automatically.</p>
     <div class="row">
       <a class="button blue" href="https://app.netlify.com/projects/joes-painting/forms" target="_blank" rel="noopener">Open customer submissions</a>
       <a class="button ghost" href="/upload.html">View customer upload page</a>
     </div>
-    <p class="small">No new keys are required for customer uploads.</p>
   </article>
 </section>
 </main>
+<script src="/owner.js" defer></script>
 </body>
 </html>
