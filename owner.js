@@ -31,7 +31,7 @@ async function load(){
  }catch(e){signedIn(false);photos.replaceChildren();msg(oauthError?'GitHub sign-in failed: '+oauthError:e.message)}
 }
 upload.onclick=async()=>{
- if(!authenticated)return msg('Sign in with GitHub above before uploading. The file picker is available so you can choose your photo first.');
+ if(!authenticated){window.location.href='/.netlify/functions/auth-start';return;}
  const f=file.files[0];if(!f)return msg('Choose a photo');
  if(f.size>4*1024*1024)return msg('Maximum file size is 4 MB');
  upload.disabled=true;
