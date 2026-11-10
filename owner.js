@@ -1,1 +1,45 @@
-const endpoint='/.netlify/functions/gallery-admin';const status=document.getElementById('status');const photos=document.getElementById('photos');function msg(t){status.textContent=t}async function api(method='GET',body,action){const r=await fetch(endpoint+(action?'?action='+encodeURIComponent(action):''),{method,credentials:'same-origin',headers:method==='POST'?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});const data=await r.json();if(!r.ok)throw Error(data.error||'Request failed');return data}async function load(){try{const data=await api();photos.replaceChildren();if(!data.photos.length)photos.textContent='No uploaded photos yet.';for(const p of data.photos){const row=document.createElement('div');row.className='photo';const img=document.createElement('img');img.src=p.url;img.alt=p.name;const name=document.createElement('span');name.textContent=p.name;const del=document.createElement('button');del.textContent='Delete';del.onclick=async()=>{if(!confirm('Permanently delete this photo?'))return;try{await api('POST',{action:'delete',name:p.name,sha:p.sha});msg('Photo deleted');await load()}catch(e){msg(e.message)}};row.append(img,name,del);photos.append(row)}msg('Signed in and connected')}catch(e){msg(e.message)}}document.getElementById('upload').onclick=async()=>{const f=document.getElementById('file').files[0];if(!f)return msg('Choose a photo');if(f.size>4*1024*1024)return msg('Maximum file size is 4 MB');try{msg('Uploading…');const base64=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=reject;reader.readAsDataURL(f)});await api('POST',{action:'upload',name:f.name,content:base64});msg('Uploaded');await load()}catch(e){msg(e.message)}};document.getElementById('logout').onclick=async()=>{try{await api('POST',null,'logout');photos.replaceChildren();msg('Signed out')}catch(e){msg(e.message)}};load();
+const endpoint='/.netlify/functions/gallery-admin';
+const status=document.getElementById('status'),photos=document.getElementById('photos'),upload=document.getElementById('upload'),file=document.getElementById('file');
+function msg(t){status.textContent=t}
+function signedIn(ok){upload.disabled=!ok;file.disabled=!ok}
+signedIn(false);
+async function api(method='GET',body,action){
+ const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),20000);
+ try{
+  const r=await fetch(endpoint+(action?'?action='+encodeURIComponent(action):''),{method,credentials:'same-origin',headers:method==='POST'?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined,signal:controller.signal});
+  const raw=await r.text();let data;
+  try{data=JSON.parse(raw)}catch{throw Error('Server returned an unexpected response (HTTP '+r.status+'). Check Netlify function logs')}
+  if(!r.ok)throw Error(data.error||'Request failed (HTTP '+r.status+')');
+  return data;
+ }catch(e){if(e.name==='AbortError')throw Error('Request timed out after 20 seconds. Check Netlify function logs');throw e}
+ finally{clearTimeout(timeout)}
+}
+async function load(){
+ try{
+  const data=await api();signedIn(true);photos.replaceChildren();
+  if(!data.photos.length)photos.textContent='No uploaded photos yet.';
+  for(const p of data.photos){
+   const row=document.createElement('div');row.className='photo';
+   const img=document.createElement('img');img.src=p.url;img.alt=p.name;
+   const name=document.createElement('span');name.textContent=p.name;
+   const del=document.createElement('button');del.textContent='Delete';
+   del.onclick=async()=>{if(!confirm('Permanently delete this photo?'))return;del.disabled=true;try{await api('POST',{action:'delete',name:p.name,sha:p.sha});await load();msg('Photo deleted')}catch(e){msg(e.message);del.disabled=false}};
+   row.append(img,name,del);photos.append(row)
+  }
+  msg('Signed in and connected');
+ }catch(e){signedIn(false);photos.replaceChildren();msg(e.message)}
+}
+upload.onclick=async()=>{
+ const f=file.files[0];if(!f)return msg('Choose a photo');
+ if(f.size>4*1024*1024)return msg('Maximum file size is 4 MB');
+ upload.disabled=true;
+ try{
+  msg('Reading photo…');
+  const base64=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=()=>reject(Error('Could not read photo'));reader.readAsDataURL(f)});
+  msg('Uploading to GitHub…');
+  await api('POST',{action:'upload',name:f.name,content:base64});
+  await load();msg('Photo uploaded successfully');file.value='';
+ }catch(e){msg(e.message)}finally{if(!file.disabled)upload.disabled=false}
+};
+document.getElementById('logout').onclick=async()=>{try{await api('POST',null,'logout');photos.replaceChildren();signedIn(false);msg('Signed out')}catch(e){msg(e.message)}};
+load();
