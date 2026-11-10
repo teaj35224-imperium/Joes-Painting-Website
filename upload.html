@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Send Joe's Painting photos of your room or small interior painting project for review.">
+<title>Send Project Photos | Joe's Painting</title>
+<style>
+:root{--ink:#142033;--muted:#657080;--cream:#f6f2ea;--panel:#fff;--blue:#1f6feb;--orange:#e67e22;--line:#e3e7ee;--shadow:0 18px 45px rgba(20,32,51,.10)}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font:16px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.wrap{width:min(820px,calc(100% - 32px));margin:auto}.top{background:linear-gradient(135deg,#12345b,#1f6feb 70%,#e67e22 150%);color:#fff;padding:30px 0 42px}.back{color:#fff;text-decoration:none;font-weight:800}.top h1{font-size:clamp(2rem,7vw,3.4rem);line-height:1;margin:28px 0 12px;letter-spacing:-.04em}.top p{max-width:650px;color:#eef5ff;margin:0}.card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:24px;box-shadow:var(--shadow);margin:-20px auto 38px;position:relative}.note{padding:14px 16px;background:#eef5ff;border:1px solid #cfe0ff;border-radius:14px;margin-bottom:22px}.field{margin:17px 0}.field label{display:block;font-weight:800;margin-bottom:6px}.field input,.field textarea,.field select{width:100%;font:inherit;padding:13px 14px;border:1px solid #cfd6df;border-radius:12px;background:#fff;color:var(--ink)}.field textarea{min-height:120px;resize:vertical}.files{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}.filebox{border:1px dashed #b8c4d1;background:#fafcff;border-radius:14px;padding:12px}.filebox label{font-weight:800;font-size:.92rem}.filebox input{border:0;padding:8px 0;background:transparent}.actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:24px}.btn{appearance:none;border:0;border-radius:12px;min-height:50px;padding:0 20px;font:inherit;font-weight:850;cursor:pointer}.primary{background:var(--orange);color:#fff}.secondary{display:inline-flex;align-items:center;text-decoration:none;background:#edf2f8;color:var(--ink)}.small{font-size:.88rem;color:var(--muted)}#status{font-weight:750;margin-top:14px}.honeypot{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+@media(max-width:680px){.files{grid-template-columns:1fr}.card{padding:20px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap"><a class="back" href="/">← Back to Joe's Painting</a><h1>Send Joe photos of your project.</h1><p>Use your phone to send room photos, contact information, and a quick description. These customer photos are for Joe's review and are not posted to the public gallery.</p></div></header>
+<main class="wrap">
+<section class="card">
+  <div class="note"><strong>For small interior residential jobs.</strong><br>Single rooms and smaller painting projects are the best fit.</div>
+
+  <form name="project-photo-request" method="POST" action="/thanks.html" data-netlify="true" netlify-honeypot="bot-field" enctype="multipart/form-data" id="project-form">
+    <input type="hidden" name="form-name" value="project-photo-request">
+    <p class="honeypot"><label>Don't fill this out: <input name="bot-field"></label></p>
+
+    <div class="field"><label for="name">Your name</label><input id="name" name="name" type="text" autocomplete="name" required></div>
+    <div class="field"><label for="phone">Phone number</label><input id="phone" name="phone" type="tel" autocomplete="tel" required></div>
+    <div class="field"><label for="email">Email (optional)</label><input id="email" name="email" type="email" autocomplete="email"></div>
+
+    <div class="field"><label for="area">What needs painting?</label>
+      <select id="area" name="project_type" required>
+        <option value="">Choose one</option>
+        <option>Single room</option>
+        <option>Walls only</option>
+        <option>Walls and trim</option>
+        <option>Trim only</option>
+        <option>Small interior project</option>
+        <option>Other interior work</option>
+      </select>
+    </div>
+
+    <div class="field"><label for="details">Tell Joe what you need</label><textarea id="details" name="details" placeholder="Example: bedroom walls and trim, color change, small cracks to caulk..." required></textarea></div>
+
+    <div class="field"><label>Project photos</label><div class="files">
+      <div class="filebox"><label for="photo1">Photo 1</label><input id="photo1" name="photo_1" type="file" accept="image/jpeg,image/png,image/webp" required></div>
+      <div class="filebox"><label for="photo2">Photo 2</label><input id="photo2" name="photo_2" type="file" accept="image/jpeg,image/png,image/webp"></div>
+      <div class="filebox"><label for="photo3">Photo 3</label><input id="photo3" name="photo_3" type="file" accept="image/jpeg,image/png,image/webp"></div>
+    </div><p class="small">JPG, PNG or WebP. Keep the combined upload under 8 MB.</p></div>
+
+    <div class="actions"><button class="btn primary" type="submit" id="submit">Send project to Joe</button><a class="btn secondary" href="tel:3527133996">Call instead</a></div>
+    <p id="status" role="status"></p>
+  </form>
+</section>
+</main>
+<script>
+const form=document.getElementById('project-form'),status=document.getElementById('status'),submit=document.getElementById('submit');
+form.addEventListener('submit',e=>{
+  const inputs=[...form.querySelectorAll('input[type="file"]')];
+  const files=inputs.flatMap(i=>[...i.files]);
+  const total=files.reduce((n,f)=>n+f.size,0);
+  const allowed=new Set(['image/jpeg','image/png','image/webp']);
+  if(files.some(f=>!allowed.has(f.type))){e.preventDefault();status.textContent='Please use JPG, PNG or WebP photos only.';return}
+  if(total>8*1024*1024){e.preventDefault();status.textContent='Those photos are over the 8 MB total limit. Choose smaller photos and try again.';return}
+  submit.disabled=true;submit.textContent='Sending…';status.textContent='Uploading your project photos…';
+});
+</script>
+</body>
+</html>
